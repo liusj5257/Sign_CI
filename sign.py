@@ -1844,7 +1844,7 @@ async def crontab_task(**kwargs):
     # tasks = []
     # 京豆任务
     tasks = [asyncio.create_task(signBeanAct(**{"pt_pin": k, "pt_key": cache[k]})) for k in cache.iterkeys() if
-             k.startswith("jd_")]
+             k.startswith("")]
     # 南航任务
     tasks += [asyncio.create_task(csairSign(**{"token": cache[k]})) for k in cache.iterkeys() if k.startswith("csai_")]
     # 川航任务
