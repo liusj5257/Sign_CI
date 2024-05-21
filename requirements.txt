@@ -4,4 +4,4 @@ fastapi
 starlette
 diskcache
 apscheduler
-dateutil
+python-dateutil
