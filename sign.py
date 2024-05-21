@@ -1346,55 +1346,58 @@ async def qqstock(**kwargs):
     }
     res = await req(**meta)
     # 日常任务
-    act_id = res.json()["continue_task"]["act_id"]
-    for pkgs in res.json()["continue_task"]["task_pkgs"]:
-        for t in pkgs["tasks"]:
-            kwargs.update({"actid": act_id, "id": t["id"], "tid": t["tid"]})
-            await qqstock_activity_task(**kwargs)
-    for pkgs in res.json()["daily_task"]["task_pkgs"]:
-        for t in pkgs["tasks"]:
-            kwargs.update({"actid": 1111, "id": t["id"], "tid": t["tid"]})
-            await qqstock_activity_task(**kwargs)
-    # 日常分享任务
-    task_list = ['news_share', 'user_public', 'task_72_1113', 'task_51_1101', 'task_50_1110', 'task_50_1112',
-                 'task_51_1032',
-                 'task_50_1111', 'task_50_1113', 'task_50_1101', 'task_51_1111', 'task_51_1100', 'task_75_1112',
-                 'task_50_1033', 'task_51_1113', 'task_76_1113', 'task_51_1112', 'task_51_1033', 'task_50_1032',
-                 'task_74_1113', 'task_51_1110', 'task_66_1110', 'task_75_1113', 'task_50_1100']
-    for t in task_list:
-        kwargs.update({"share_type": t})
-        await qqstock_activity_share(**kwargs)
+    if 'continue_task' in res.json():
+        act_id = res.json()["continue_task"]["act_id"]
+        for pkgs in res.json()["continue_task"]["task_pkgs"]:
+            for t in pkgs["tasks"]:
+                kwargs.update({"actid": act_id, "id": t["id"], "tid": t["tid"]})
+                await qqstock_activity_task(**kwargs)
+        for pkgs in res.json()["daily_task"]["task_pkgs"]:
+            for t in pkgs["tasks"]:
+                kwargs.update({"actid": 1111, "id": t["id"], "tid": t["tid"]})
+                await qqstock_activity_task(**kwargs)
+        # 日常分享任务
+        task_list = ['news_share', 'user_public', 'task_72_1113', 'task_51_1101', 'task_50_1110', 'task_50_1112',
+                    'task_51_1032',
+                    'task_50_1111', 'task_50_1113', 'task_50_1101', 'task_51_1111', 'task_51_1100', 'task_75_1112',
+                    'task_50_1033', 'task_51_1113', 'task_76_1113', 'task_51_1112', 'task_51_1033', 'task_50_1032',
+                    'task_74_1113', 'task_51_1110', 'task_66_1110', 'task_75_1113', 'task_50_1100']
+        for t in task_list:
+            kwargs.update({"share_type": t})
+            await qqstock_activity_share(**kwargs)
 
-    # 猜涨跌
-    meta.update({
-        "url": "https://zqact.tenpay.com/cgi-bin/guess_op.fcgi",
-        "params": {
-            "channel": "1",
-            "action": "6",
-            "bid": "1001",
-            "new_version": "3",
-            "_": int(time() * 1000),
-            "openid": kwargs.get("openid", ""),
-            "fskey": kwargs.get("skey", ""),
-            "channel": "1",
-            "access_token": "",
-            "_appName": "ios",
-            "_appver": "11.10.0",
-            "_osVer": "17.1.1",
-            "_devId": "",
-            "_ui": ""
-        },
-    })
-    res = await req(**meta)
-    if res:
-        print(res.text.strip())
-    # 长牛任务
-    kwargs.update({"actid": 1105})
-    await qqstock_activity_year_party(**kwargs)
+        # 猜涨跌
+        meta.update({
+            "url": "https://zqact.tenpay.com/cgi-bin/guess_op.fcgi",
+            "params": {
+                "channel": "1",
+                "action": "6",
+                "bid": "1001",
+                "new_version": "3",
+                "_": int(time() * 1000),
+                "openid": kwargs.get("openid", ""),
+                "fskey": kwargs.get("skey", ""),
+                "channel": "1",
+                "access_token": "",
+                "_appName": "ios",
+                "_appver": "11.10.0",
+                "_osVer": "17.1.1",
+                "_devId": "",
+                "_ui": ""
+            },
+        })
+        res = await req(**meta)
+        if res:
+            print(res.text.strip())
+        # 长牛任务
+        kwargs.update({"actid": 1105})
+        await qqstock_activity_year_party(**kwargs)
 
-    # 微信任务
-    kwargs.update({"skey": kwargs["wx_skey"]})
-    await wx_daily_task(**meta)
+        # 微信任务
+        kwargs.update({"skey": kwargs["wx_skey"]})
+        await wx_daily_task(**meta)
+    else:
+        logger.info('no more tasks')
 
 
 # 腾讯自选股日常任务
