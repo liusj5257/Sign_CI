@@ -1,0 +1,7 @@
+httpx
+loguru
+fastapi
+starlette
+diskcache
+apscheduler
+dateutil
