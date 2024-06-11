@@ -28,5 +28,5 @@ jobs:
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: Test
       run: |
-        python sign.py --pt_pin ${{ secrets.PT_PIN }} --pt_key ${{ secrets.PT_KEY }} --csai 123456
+        python sign.py --pt_pin ${{ secrets.PT_PIN }} --pt_key ${{ secrets.PT_KEY }}
 
