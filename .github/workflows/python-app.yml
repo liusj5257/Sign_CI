@@ -5,6 +5,8 @@ name: Python application
 
 on:
   workflow_dispatch:
+  schedule:
+    - cron: "0 23 * * *"
   push:
     branches: [ "master" ]
   pull_request:
