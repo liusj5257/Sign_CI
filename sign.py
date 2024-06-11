@@ -79,7 +79,8 @@ for i, arg in enumerate(args):
                 if k == "pt_pin":
                     for i_, v_ in enumerate(v.split(";")):
                         try:
-                            cache.set(v_, args[i + 3].split(";")[i_])
+                            # cache.set(v_, args[i + 3].split(";")[i_])
+                            cache.set(f'jd_{v_}', args[i + 3].split(";")[i_])
                         except:
                             pass
             else:
@@ -150,7 +151,8 @@ async def shutdown_event():
 async def jd_sign(request: Request, background_tasks: BackgroundTasks,
               pt_pin: Union[str, None] = Body(default="jd_XXX"),
               pt_key: Union[str, None] = Body(default="AAJkPgXXX_XXX"), time: Union[str, None] = Body(default="09:00:00")):
-    cache.set(pt_pin, pt_key)
+    # cache.set(pt_pin, pt_key)
+    cache.set(f'jd_{pt_pin}', pt_key)
     data_time = parse(time)
     background_tasks.add_task(signBeanAct, **{"pt_pin": pt_pin, "pt_key": pt_key})
     task_id = str(uuid4())
@@ -302,16 +304,17 @@ async def signBeanAct(**kwargs):
     meta = {
         "method": "POST",
         "url": "https://api.m.jd.com/client.action",
-        "params": {
-            "functionId": "signBeanAct",
-            # "body": '{"fp":"-1","shshshfp":"-1","shshshfpa":"-1","referUrl":"-1","userAgent":"-1","jda":"-1","rnVersion":"3.9"}',
-            "appid": "ld",
-            "client": "apple",
-            # "clientVersion": "10.0.4",
-            # "networkType": "wifi",
-            # "osVersion": "14.8.1",
-            # "uuid": "",
-            # "openudid": "",
+        "data": {
+            'functionId': 'signBeanAct',
+            'body': '{}',
+            'appid': 'signed_wh5_ihub',
+            'client': 'apple',
+            'clientVersion': '13.0.2',
+            'h5st': '20240528100518226;5iy5yi6zngmi9yy4;9d49c;tk03w8a731b9741lMisyKzMrMjR382m8OHl6CME_42gdIK27Ztj59og7qFiXW6ANYumVHShrpZ3_ZS0YdGWqK3iY4Ppz;a791835d42061f132ff014304320d32c1e961322573832c7224985fdbbdb4a80;4.7;1716861918226;TKmWymVS34wMWdBCuoFxiVU9ZqmOQttKGrKnVObP83GJZYMza1mupKRvk-ZU6Nj4VdHOVgWbZu9qpwinIhHDWj703eS-Lz7cpZSUJmuAoevLoTGJlVk6nrDCJdsEqPdA9VL9QQJR-PzYFJipNAfyfKvauarIRTW7fGPA3pkTLjrAv_LsOFwkARWPBstGvW-pydLMlupoMyLwh15Je73wD50dMGxrcZXqP7KOLYCx4Hx-qv2YVtqPIE7qCyGHs292qExyfL-Qs_zDVBv1VTC1WM4xDMmWUHeHJUS_WWDFGYnOuVooASH9TGgekE09b_Aj42dBNZkEFasDO7ahC5QYbLg43mTNIeOt1gtErtxLkus9fR6JaZOlgE5dzuZ_tAfhzDpmY2LQb1zwv8oA91VEmsQRYtqe3KzB7K89QdjAvxWa1hwGxzRNDtBwYXJoTMRJ0YDA',
+        },
+        "headers": {
+            "User-Agent": "jdapp",
+            "Referer": "https://pro.m.jd.com",
         },
         "cookies": {
             "pt_key": pt_key,
@@ -1846,7 +1849,7 @@ async def crontab_task(**kwargs):
     # tasks = [asyncio.create_task(signBeanAct(**account_list[i])) for i in range(len(account_list))]
     # tasks = []
     # 京豆任务
-    tasks = [asyncio.create_task(signBeanAct(**{"pt_pin": k, "pt_key": cache[k]})) for k in cache.iterkeys() if
+    tasks = [asyncio.create_task(signBeanAct(**{"pt_pin": k.strip("jd_"), "pt_key": cache[k]})) for k in cache.iterkeys() if
              k.startswith("")]
     # 南航任务
     tasks += [asyncio.create_task(csairSign(**{"token": cache[k]})) for k in cache.iterkeys() if k.startswith("csai_")]
@@ -1890,7 +1893,10 @@ async def crontab_task(**kwargs):
         # wx
         "wx_skey": "",
     }
-    await qqstock(**meta)
+    try:
+        await qqstock(**meta)
+    except:
+        pass
     return result_list
 
 
